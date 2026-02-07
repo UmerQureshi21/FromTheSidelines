@@ -1,3 +1,4 @@
 twelvelabs
 python-dotenv
 google-genai
+requests
