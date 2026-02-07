@@ -1,2 +1,3 @@
 twelvelabs
 python-dotenv
+google-genai

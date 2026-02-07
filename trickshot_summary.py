@@ -15,46 +15,50 @@ client = TwelveLabs(api_key=apiKey)
 
 # # 2. Create an index (Already done)
 
-# 3. Upload a video
-asset = client.assets.create(
-    method="direct",
-    file=open("test-vids/trickshot.mp4", "rb") # Use direct links to raw media files. Video hosting platforms and cloud storage sharing links are not supported
-    # Or use method="direct" and file=open("<PATH_TO_VIDEO_FILE>", "rb") to upload a file from the local file system
-)
-
-print(f"Created asset: id={asset.id}")
-
-# 4. Index your video
-indexed_asset = client.indexes.indexed_assets.create(
-    index_id=indexId,
-    asset_id=asset.id
-)
-print(f"Created indexed asset: id={indexed_asset.id}")
-# 5. Monitor the indexing process
-print("Waiting for indexing to complete.")
-while True:
-    indexed_asset = client.indexes.indexed_assets.retrieve(
-        indexId,
-        indexed_asset.id
+def getSummary(videoPath):
+    # 3. Upload a video
+    asset = client.assets.create(
+        method="direct",
+        file=open(videoPath, "rb") # Use direct links to raw media files. Video hosting platforms and cloud storage sharing links are not supported
+        # Or use method="direct" and file=open("<PATH_TO_VIDEO_FILE>", "rb") to upload a file from the local file system
     )
-    print(f"  Status={indexed_asset.status}")
-    if indexed_asset.status == "ready":
-        print("Indexing complete!")
-        break
-    elif indexed_asset.status == "failed":
-        raise RuntimeError("Indexing failed")
-    time.sleep(5)
 
-# 6. Analyze your video
-text_stream = client.analyze_stream(video_id=indexed_asset.id, prompt=prompt)
+    print(f"Created asset: id={asset.id}")
 
-answer = ""
+    # 4. Index your video
+    indexed_asset = client.indexes.indexed_assets.create(
+        index_id=indexId,
+        asset_id=asset.id
+    )
+    print(f"Created indexed asset: id={indexed_asset.id}")
+    # 5. Monitor the indexing process
+    print("Waiting for indexing to complete.")
+    while True:
+        indexed_asset = client.indexes.indexed_assets.retrieve(
+            indexId,
+            indexed_asset.id
+        )
+        print(f"  Status={indexed_asset.status}")
+        if indexed_asset.status == "ready":
+            print("Indexing complete!")
+            break
+        elif indexed_asset.status == "failed":
+            raise RuntimeError("Indexing failed")
+        time.sleep(5)
 
-# 7. Process the results
-for text in text_stream:
-    if text.event_type == "text_generation":
-        answer += text.text
+    # 6. Analyze your video
+    text_stream = client.analyze_stream(video_id=indexed_asset.id, prompt=prompt)
 
+    answer = ""
+
+    # 7. Process the results
+    for text in text_stream:
+        if text.event_type == "text_generation":
+            answer += text.text
+    return answer
+
+videoPath = "test-vids/trickshot.mp4"
+answer = getSummary(videoPath)
 print (f"ANSWER: {answer}")
 
 
