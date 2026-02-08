@@ -2,3 +2,6 @@ twelvelabs
 python-dotenv
 google-genai
 requests
+fastapi
+python-multipart
+uvicorn
