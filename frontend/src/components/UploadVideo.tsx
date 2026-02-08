@@ -1,28 +1,35 @@
-import { useState } from "react";
+import { useState, type ChangeEvent} from "react";
+
+interface UploadVideoState {
+  file: File | null;
+  loading: boolean;
+  error: string | null;
+  videoUrl: string | null;
+}
 
 function UploadVideo() {
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       setError(null);
     }
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: any): void => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: any): void => {
     e.preventDefault();
     e.stopPropagation();
-    const droppedFile = e.dataTransfer.files[0];
+    const droppedFile = e.dataTransfer.files?.[0];
     if (droppedFile && droppedFile.type.startsWith("video/")) {
       setFile(droppedFile);
       setError(null);
@@ -31,7 +38,7 @@ function UploadVideo() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (): Promise<void> => {
     if (!file) {
       setError("Please select a video");
       return;
@@ -53,14 +60,32 @@ function UploadVideo() {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      // Convert response to blob and create URL
+      // Backend returns FileResponse (blob of video file)
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
       setVideoUrl(url);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReset = (): void => {
+    setVideoUrl(null);
+    setFile(null);
+    setError(null);
+  };
+
+  const handleDownload = (): void => {
+    if (videoUrl) {
+      const link = document.createElement("a");
+      link.href = videoUrl;
+      link.download = "commentated-trickshot.mp4";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -140,10 +165,9 @@ function UploadVideo() {
           </div>
 
           {/* Download button */}
-          <a
-            href={videoUrl}
-            download="commentated-trickshot.mp4"
-            className="block w-full group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/50 text-center"
+          <button
+            onClick={handleDownload}
+            className="block w-full group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/50"
             style={{ fontSize: "18px" }}
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
@@ -158,15 +182,11 @@ function UploadVideo() {
               </svg>
             </span>
             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-          </a>
+          </button>
 
           {/* Try another */}
           <button
-            onClick={() => {
-              setVideoUrl(null);
-              setFile(null);
-              setError(null);
-            }}
+            onClick={handleReset}
             className="w-full poppins-semibold px-8 py-4 border-2 border-orange-500/50 text-orange-400 rounded-full hover:bg-orange-500/10 transition-colors"
             style={{ fontSize: "16px" }}
           >

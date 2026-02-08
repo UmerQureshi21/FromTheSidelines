@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import UploadVideo from "./components/UploadVideo";
 
 function App() {
   const [scrollY, setScrollY] = useState(0);
@@ -124,18 +125,7 @@ function App() {
             Coming soon. Drop your video here to generate AI commentary.
           </p>
 
-          {/* Upload placeholder */}
-          <div className="border-2 border-dashed border-orange-500/30 rounded-2xl p-12 bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer">
-            <div style={{ fontSize: "96px" }} className="mb-4">
-              📹
-            </div>
-            <p
-              className="poppins-light text-gray-400"
-              style={{ fontSize: "16px" }}
-            >
-              Video upload coming soon
-            </p>
-          </div>
+          <UploadVideo/>
         </div>
       </section>
     </div>
