@@ -8,7 +8,7 @@ load_dotenv()  # loads variables from .env into environment
 
 apiKey = os.getenv("TWELVELABS_API_KEY")
 indexId = os.getenv("INDEX_ID")
-prompt = "Give me a detailed explanation of the trickshot. At each new step of the trickshot, annotate it with timestamps"
+prompt = "Give me a detailed paragraph explanation of the trickshot. At each new step of the trickshot, start it with its timestamp."
 
 
 # # 1. Initialize the client
