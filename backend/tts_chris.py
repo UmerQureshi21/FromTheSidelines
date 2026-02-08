@@ -25,6 +25,8 @@ def generate_chris_mp3(
     model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128",
 ) -> str:
+    print(f"This is what Chris will say: \n\n{text}")
+
     """
     Generate an MP3 using the ElevenLabs 'Chris - Sports Commentator' voice.
 

@@ -8,7 +8,14 @@ load_dotenv()  # loads variables from .env into environment
 
 apiKey = os.getenv("TWELVELABS_API_KEY")
 indexId = os.getenv("INDEX_ID")
-prompt = "Give me a detailed paragraph explanation of the trickshot. At each new step of the trickshot, start it with its timestamp."
+prompt = """
+
+Give me a detailed paragraph explanation of the trickshot. Mention anything 
+that assists in the trickshot, such as any vehicle, props, any others involved, 
+etc. At each new step of the trickshot, start it with its timestamp. Don't give a conclusion, 
+just describe the trickshot step by step. 
+
+ """
 
 
 # # 1. Initialize the client

@@ -34,7 +34,7 @@ def getScript(trickshot):
             
             You are an extremely excited and hyped commentator for sports. Any trickshot that happens, 
             give me what you would say. make sure that if it was spoken, then the duration of the speech would be about 6 seconds, and match what you're saying to 
-            each timestamp. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.
+            each timestamp. Be short, concise and straight forward with what you say, but also be excited, nothing too long. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.
             """),
         contents=trickshot
     )

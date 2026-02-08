@@ -1,11 +1,11 @@
 import { useState, type ChangeEvent} from "react";
 
-interface UploadVideoState {
-  file: File | null;
-  loading: boolean;
-  error: string | null;
-  videoUrl: string | null;
-}
+// interface UploadVideoState {
+//   file: File | null;
+//   loading: boolean;
+//   error: string | null;
+//   videoUrl: string | null;
+// }
 
 function UploadVideo() {
   const [file, setFile] = useState<File | null>(null);
@@ -102,9 +102,9 @@ function UploadVideo() {
             <label className="cursor-pointer block">
               <div className="text-center">
                 <div style={{ fontSize: "96px" }} className="mb-4">
-                  📹
+                  
                 </div>
-                <p className="poppins-semibold text-white mb-2" style={{ fontSize: "18px" }}>
+                <p className="poppins-semibold text-black mb-2" style={{ fontSize: "18px" }}>
                   {file ? file.name : "Drag and drop your video here"}
                 </p>
                 <p className="poppins-light text-gray-400" style={{ fontSize: "14px" }}>

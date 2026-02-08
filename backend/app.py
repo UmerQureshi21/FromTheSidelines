@@ -62,7 +62,7 @@ async def generate_commentary(video: UploadFile = File(...)):
             "No narration or music."
         )
         crowd_file = os.path.join(temp_dir, "crowd-noises.mp3")
-        generate_crowd_sfx_mp3(crowd_prompt, crowd_file, duration_seconds=8.7, loop=False)
+        generate_crowd_sfx_mp3(crowd_prompt, crowd_file, duration_seconds=20, loop=False)
         
         # Step 5: Process video with audio
         print("Step 5: Processing video with audio...")
