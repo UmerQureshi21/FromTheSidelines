@@ -1,3 +1,4 @@
+#used to actually overlay audio on video using ffmpeg
 import os
 import subprocess
 import sys
@@ -149,6 +150,3 @@ def main():
     processor = VideoProcessor(video_file, voice_file, crowd_file)
     processor.process(cleanup=True)
 
-
-if __name__ == "__main__":
-    main()

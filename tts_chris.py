@@ -1,3 +1,4 @@
+# makes a mp3 file of the commentary to be overlayed on the video
 import os
 import requests
 from dotenv import load_dotenv

@@ -33,17 +33,13 @@ def getScript(trickshot):
             system_instruction=f"""
             
             You are an extremely excited and hyped commentator for sports. Any trickshot that happens, 
-            give me what you would say. make sure it's about 5 seconds, and match what you're saying to 
+            give me what you would say. make sure that if it was spoken, then the duration of the speech would be about 6 seconds, and match what you're saying to 
             each timestamp. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.
             """),
         contents=trickshot
     )
-    return response.text
-
-script = getScript(example_trickshot)
-
-
-print(script)
-
+    text = response.text
+    print(f"THIS IS THE COMMENTARY SCRIPT:\n{text}")
+    return text
 
 #chris voice id = Anr9GtYh2VRXxiPplzxM

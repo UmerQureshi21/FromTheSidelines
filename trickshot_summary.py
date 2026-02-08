@@ -1,3 +1,4 @@
+#makes the trickshot summary text
 import time
 from twelvelabs import TwelveLabs
 from dotenv import load_dotenv
@@ -55,11 +56,12 @@ def getSummary(videoPath):
     for text in text_stream:
         if text.event_type == "text_generation":
             answer += text.text
+    print(f"TRICKSHOT SUMMARY:\n{answer}")
     return answer
 
-videoPath = "test-vids/trickshot.mp4"
-answer = getSummary(videoPath)
-print (f"ANSWER: {answer}")
+# videoPath = "trickshot.mp4"
+# answer = getSummary(videoPath)
+# print (f"ANSWER: {answer}")
 
 
 '''
