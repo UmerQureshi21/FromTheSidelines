@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
+import subprocess
 
 load_dotenv()  # loads variables from .env into environment
 
@@ -17,7 +18,31 @@ LANGUAGE_NAMES = {
     "es": "Spanish",
 }
 
-def getScript(trickshot, language="en", trickshot_name=""):
+def get_video_duration(video_path):
+    """Get video duration in seconds using ffprobe."""
+    result = subprocess.run(
+        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", video_path],
+        capture_output=True, text=True,
+    )
+    import json
+    data = json.loads(result.stdout)
+    return float(data["format"]["duration"])
+
+
+# ~3 words per second of spoken commentary
+WORDS_PER_SECOND = 3
+
+
+def getScript(trickshot, language="en", trickshot_name="", video_path=""):
+    # Calculate target word count from video duration
+    if video_path:
+        duration = get_video_duration(video_path)
+    else:
+        duration = 10.0  # fallback
+    max_words = int(duration * WORDS_PER_SECOND)
+    max_words = max(10, min(max_words, 80))  # clamp between 10-80 words
+    print(f"Video duration: {duration:.1f}s -> target {max_words} words")
+
     lang_name = LANGUAGE_NAMES.get(language, "English")
     lang_instruction = (
         f" You MUST write your entire commentary in {lang_name}."
@@ -31,10 +56,9 @@ def getScript(trickshot, language="en", trickshot_name=""):
     )
 
     system_prompt = (
-        "You are a sports commentator. Read the trickshot description and write a single excited sentence "
-        "summarizing the key move and the result. Mention what makes this shot unique. "
-        "Do NOT mention the crowd, do NOT say folks, do NOT add filler. "
-        "Maximum 20 words."
+        f"You are a sports commentator. Write excited commentary in EXACTLY {max_words} words or fewer. "
+        "Describe the key physical actions and the result. What makes this shot unique. "
+        "Do NOT mention the crowd, do NOT say folks, do NOT add filler."
         f"{lang_instruction}{name_instruction}"
     )
 
@@ -45,7 +69,7 @@ def getScript(trickshot, language="en", trickshot_name=""):
             {
                 "role": "user",
                 "content": (
-                    f"Summarize this trickshot in ONE sentence, max 20 words:\n\n{trickshot}"
+                    f"Summarize this trickshot in {max_words} words or fewer:\n\n{trickshot}"
                 ),
             },
         ],
@@ -57,9 +81,9 @@ def getScript(trickshot, language="en", trickshot_name=""):
     if raw.startswith('"') and raw.endswith('"'):
         raw = raw[1:-1].strip()
 
-    # Always force trim to 25 words max (~10 seconds spoken)
+    # Hard trim to max_words no matter what
     words = raw.split()
-    text = " ".join(words[:25])
+    text = " ".join(words[:max_words])
 
     # Try to end on a sentence boundary
     for end in ["!", "."]:

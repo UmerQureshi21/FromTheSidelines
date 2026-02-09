@@ -47,7 +47,7 @@ async def generate_commentary(video: UploadFile = File(...), language: str = For
         
         # Step 2: Generate script
         print("Step 2: Generating commentary script...")
-        script = getScript(summary, language, trickshot_name)
+        script = getScript(summary, language, trickshot_name, video_path)
         
         # Step 3: Generate commentary audio
         print("Step 3: Generating commentary audio...")
