@@ -24,17 +24,32 @@ example_trickshot = """
 The entire trickshot is performed with seamless timing, synchronized movements, and exceptional skill, all captured from a consistent camera angle that maintains full visibility of the court and performers throughout.
 """
 
-def getScript(trickshot):
+LANGUAGE_NAMES = {
+    "en": "English",
+    "fr": "French",
+    "ar": "Arabic",
+    "ur": "Urdu",
+    "es": "Spanish",
+}
+
+def getScript(trickshot, language="en"):
     client = genai.Client()
+
+    lang_name = LANGUAGE_NAMES.get(language, "English")
+    lang_instruction = (
+        f" You MUST write your entire commentary in {lang_name}."
+        if language != "en"
+        else ""
+    )
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             system_instruction=f"""
-            
-            You are an extremely excited and hyped commentator for sports. Any trickshot that happens, 
-            give me what you would say. make sure that if it was spoken, then the duration of the speech would be about 6 seconds, and match what you're saying to 
-            each timestamp. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.
+
+            You are an extremely excited and hyped commentator for sports. Any trickshot that happens,
+            give me what you would say. make sure that if it was spoken, then the duration of the speech would be about 6 seconds, and match what you're saying to
+            each timestamp. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.{lang_instruction}
             """),
         contents=trickshot
     )

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 @app.post("/generate-commentary")
-async def generate_commentary(video: UploadFile = File(...)):
+async def generate_commentary(video: UploadFile = File(...), language: str = Form("en")):
     """
     Upload a trickshot video and get back a commentated version with crowd noise.
     
@@ -47,7 +47,7 @@ async def generate_commentary(video: UploadFile = File(...)):
         
         # Step 2: Generate script
         print("Step 2: Generating commentary script...")
-        script = getScript(summary)
+        script = getScript(summary, language)
         
         # Step 3: Generate commentary audio
         print("Step 3: Generating commentary audio...")
