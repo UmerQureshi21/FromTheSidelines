@@ -7,7 +7,7 @@ import { useState, type ChangeEvent} from "react";
 //   videoUrl: string | null;
 // }
 
-function UploadVideo({ language }: { language: string }) {
+function UploadVideo({ language, trickshotName }: { language: string; trickshotName: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +51,9 @@ function UploadVideo({ language }: { language: string }) {
       const formData = new FormData();
       formData.append("video", file);
       formData.append("language", language);
+      if (trickshotName.trim()) {
+        formData.append("trickshot_name", trickshotName.trim());
+      }
 
       const response = await fetch("http://localhost:8000/generate-commentary", {
         method: "POST",

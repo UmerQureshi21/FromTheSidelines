@@ -1,28 +1,13 @@
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+from openai import OpenAI
 import os
-import requests
 
 load_dotenv()  # loads variables from .env into environment
 
-
-apiKey = os.getenv("GEMINI_API_KEY")
-
-example_trickshot = """
-[00:00] The video opens with a wide-angle shot of a blue basketball court, featuring two individuals positioned on separate platforms, each holding a basketball.  
-[00:01] The person on the left initiates the trickshot by tossing their basketball straight upward while simultaneously performing a backflip.  
-[00:02] Midway through the backflip, they catch the basketball in mid-air, demonstrating precise timing and control.  
-[00:03] Simultaneously, the individual on the right mirrors the action—throwing their ball upward and executing a backflip, then catching it at the peak of their motion.  
-[00:04] Both performers are now airborne, having completed their flips and secured the balls, showcasing synchronized coordination.  
-[00:05] The left performer throws their basketball toward the hoop, while the right performer prepares to release theirs.  
-[00:06] Both individuals release their basketballs at the same moment, sending them on a trajectory toward the hoop.  
-[00:07] The balls are seen in mid-flight, arcing gracefully through the air, with clear visibility of their paths.  
-[00:08] Both basketballs successfully pass through the hoop in perfect unison, completing the trickshot with precision and flair.  
-[00:09] The video concludes with a close-up shot of the balls swishing through the net, emphasizing the flawless execution of the sequence.  
-
-The entire trickshot is performed with seamless timing, synchronized movements, and exceptional skill, all captured from a consistent camera angle that maintains full visibility of the court and performers throughout.
-"""
+client = OpenAI(
+    base_url="https://api.featherless.ai/v1",
+    api_key=os.getenv("FEATHERLESS_API_KEY"),
+)
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -32,28 +17,56 @@ LANGUAGE_NAMES = {
     "es": "Spanish",
 }
 
-def getScript(trickshot, language="en"):
-    client = genai.Client()
-
+def getScript(trickshot, language="en", trickshot_name=""):
     lang_name = LANGUAGE_NAMES.get(language, "English")
     lang_instruction = (
         f" You MUST write your entire commentary in {lang_name}."
         if language != "en"
         else ""
     )
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        config=types.GenerateContentConfig(
-            system_instruction=f"""
-
-            You are an extremely excited and hyped commentator for sports. Any trickshot that happens,
-            give me what you would say. make sure that if it was spoken, then the duration of the speech would be about 6 seconds, and match what you're saying to
-            each timestamp. Don't tell me the timestamps or put any astericks though, just what you would say in a short paragraph.{lang_instruction}
-            """),
-        contents=trickshot
+    name_instruction = (
+        f' Mention "{trickshot_name}" once.'
+        if trickshot_name.strip()
+        else ""
     )
-    text = response.text
-    print(f"THIS IS THE COMMENTARY SCRIPT:\n{text}")
-    return text
 
+    system_prompt = (
+        "You are a sports commentator. Read the trickshot description and write a single excited sentence "
+        "summarizing the key move and the result. Mention what makes this shot unique. "
+        "Do NOT mention the crowd, do NOT say folks, do NOT add filler. "
+        "Maximum 20 words."
+        f"{lang_instruction}{name_instruction}"
+    )
+
+    response = client.chat.completions.create(
+        model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": (
+                    f"Summarize this trickshot in ONE sentence, max 20 words:\n\n{trickshot}"
+                ),
+            },
+        ],
+    )
+    raw = response.choices[0].message.content.strip()
+    print(f"RAW FROM MODEL ({len(raw.split())} words):\n{raw}")
+
+    # Strip surrounding quotes if the model wrapped it
+    if raw.startswith('"') and raw.endswith('"'):
+        raw = raw[1:-1].strip()
+
+    # Always force trim to 25 words max (~10 seconds spoken)
+    words = raw.split()
+    text = " ".join(words[:25])
+
+    # Try to end on a sentence boundary
+    for end in ["!", "."]:
+        idx = text.rfind(end)
+        if idx > len(text) // 3:
+            text = text[:idx + 1]
+            break
+
+    print(f"FINAL COMMENTARY SCRIPT ({len(text.split())} words):\n{text}")
+    return text

@@ -1,6 +1,6 @@
 twelvelabs
 python-dotenv
-google-genai
+openai
 requests
 fastapi
 python-multipart

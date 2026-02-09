@@ -11,6 +11,7 @@ const LANGUAGES = [
 
 export default function UploadSection() {
   const [language, setLanguage] = useState("en");
+  const [trickshotName, setTrickshotName] = useState("");
 
   return (
     <section
@@ -48,7 +49,17 @@ export default function UploadSection() {
           ))}
         </div>
 
-        <UploadVideo language={language} />
+        {/* Trickshot name input */}
+        <input
+          type="text"
+          value={trickshotName}
+          onChange={(e) => setTrickshotName(e.target.value)}
+          placeholder="Name your trickshot (optional)"
+          className="w-full mb-6 px-6 py-4 rounded-full border border-orange-500/30 bg-orange-500/5 text-black poppins-regular placeholder-gray-400 outline-none focus:border-orange-500 transition-colors"
+          style={{ fontSize: "16px" }}
+        />
+
+        <UploadVideo language={language} trickshotName={trickshotName} />
       </div>
     </section>
   );

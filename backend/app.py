@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 @app.post("/generate-commentary")
-async def generate_commentary(video: UploadFile = File(...), language: str = Form("en")):
+async def generate_commentary(video: UploadFile = File(...), language: str = Form("en"), trickshot_name: str = Form("")):
     """
     Upload a trickshot video and get back a commentated version with crowd noise.
     
@@ -47,7 +47,7 @@ async def generate_commentary(video: UploadFile = File(...), language: str = For
         
         # Step 2: Generate script
         print("Step 2: Generating commentary script...")
-        script = getScript(summary, language)
+        script = getScript(summary, language, trickshot_name)
         
         # Step 3: Generate commentary audio
         print("Step 3: Generating commentary audio...")
