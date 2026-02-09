@@ -21,7 +21,7 @@ export default function Hero({ onTryIt }: { onTryIt: () => void }) {
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Main Headline */}
-        <h1 className="poppins-thin mb-4 sm:mb-6 leading-none tracking-tight text-[56px] sm:text-[80px] md:text-[110px] lg:text-[140px]">
+        <h1 className="poppins-thin mb-3 sm:mb-6 leading-[0.9] tracking-tight text-[15vw] sm:text-[80px] md:text-[110px] lg:text-[140px]">
           <span className="bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
             FROM THE
           </span>
@@ -30,7 +30,7 @@ export default function Hero({ onTryIt }: { onTryIt: () => void }) {
         </h1>
 
         {/* Subheading */}
-        <p className="poppins-light text-black mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto text-base sm:text-lg md:text-2xl px-2">
+        <p className="poppins-light text-black mb-5 sm:mb-8 leading-relaxed max-w-2xl mx-auto text-sm sm:text-lg md:text-2xl px-4 sm:px-2">
           Elevate your backyard trickshots with{" "}
           <span className="text-orange-500 poppins-semibold">
             NBA-style commentary
