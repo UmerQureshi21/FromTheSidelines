@@ -239,23 +239,10 @@ function UploadVideo({ language, trickshotName }: { language: string; trickshotN
           <button
             onClick={handleUpload}
             disabled={!file || loading}
-            className="w-full group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ fontSize: "18px" }}
+            className="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-semibold rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ fontSize: "15px", letterSpacing: "0.5px" }}
           >
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              {loading ? "PROCESSING..." : "GENERATE COMMENTARY"}
-              {!loading && (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                  />
-                </svg>
-              )}
-            </span>
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+            {loading ? "Processing..." : "Generate Commentary"}
           </button>
         </div>
       ) : (

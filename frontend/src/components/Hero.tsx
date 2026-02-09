@@ -1,4 +1,4 @@
-export default function Hero() {
+export default function Hero({ onTryIt }: { onTryIt: () => void }) {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
       {/* Animated gradient background */}
@@ -55,11 +55,7 @@ export default function Hero() {
 
         {/* CTA Button */}
         <div
-          onClick={() =>
-            document
-              .getElementById("upload-section")
-              ?.scrollIntoView({ behavior: "smooth" })
-          }
+          onClick={onTryIt}
           className="cursor-pointer group flex justify-center gap-[20px] relative px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 "
           style={{ fontSize: "18px" }}
         >
