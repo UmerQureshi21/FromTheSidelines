@@ -4,12 +4,21 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import tempfile
 import asyncio
+import subprocess
 
-from trickshot_summary import getSummary
-from commentator_script import getScript
-from eleven_sfx import generate_crowd_sfx_mp3
-from tts_chris import generate_chris_mp3
-from video_processor import VideoProcessor
+# ── TEST MODE: set to False to use real AI APIs ──
+TEST_MODE = True
+
+if not TEST_MODE:
+    from trickshot_summary import getSummary
+    from commentator_script import getScript
+    from eleven_sfx import generate_crowd_sfx_mp3
+    from tts_chris import generate_chris_mp3
+    from video_processor import VideoProcessor
+
+# Sample files for test mode (no API calls)
+SAMPLE_VOICE = os.path.join(os.path.dirname(__file__), "..", "test-vids", "trickshot-voice.mp3")
+SAMPLE_CROWD = os.path.join(os.path.dirname(__file__), "..", "test-vids", "crowd-noises.mp3")
 
 app = FastAPI(title="From the Sidelines", description="AI-powered trickshot commentary generator")
 
@@ -70,52 +79,88 @@ async def generate_commentary(
 
         print(f"Video saved: {video_path}")
 
-        # Step 1: Analyze video
-        await send_progress(client_id, 1, "Analyzing trickshot...")
-        print("Step 1: Analyzing video...")
-        summary = await asyncio.to_thread(getSummary, video_path)
+        if TEST_MODE:
+            # ── TEST MODE: skip AI APIs, just overlay sample audio with ffmpeg ──
+            await send_progress(client_id, 1, "Analyzing trickshot...")
+            await asyncio.sleep(1)
 
-        # Step 2: Generate script
-        await send_progress(client_id, 2, "Generating commentary script...")
-        print("Step 2: Generating commentary script...")
-        script = await asyncio.to_thread(getScript, summary, language, trickshot_name, video_path)
+            await send_progress(client_id, 2, "Generating commentary script...")
+            await asyncio.sleep(1)
 
-        # Step 3: Generate commentary audio
-        await send_progress(client_id, 3, "Generating voice over...")
-        print("Step 3: Generating commentary audio...")
-        voice_file = os.path.join(temp_dir, "trickshot-voice.mp3")
-        await asyncio.to_thread(generate_chris_mp3, script, out_path=voice_file)
+            await send_progress(client_id, 3, "Generating voice over...")
+            await asyncio.sleep(1)
 
-        # Step 4: Generate crowd noise
-        await send_progress(client_id, 4, "Generating crowd audio...")
-        print("Step 4: Generating crowd noise...")
-        crowd_prompt = (
-            "Background audio of a crowded basketball arena as heard through a TV broadcast. "
-            "Include cheering, clapping, chanting, and natural crowd reactions. "
-            "No narration or music."
-        )
-        crowd_file = os.path.join(temp_dir, "crowd-noises.mp3")
-        await asyncio.to_thread(
-            generate_crowd_sfx_mp3, crowd_prompt, crowd_file,
-            duration_seconds=20, loop=False
-        )
+            await send_progress(client_id, 4, "Generating crowd audio...")
+            await asyncio.sleep(1)
 
-        # Step 5: Process video with audio
-        await send_progress(client_id, 5, "Combining final video...")
-        print("Step 5: Processing video with audio...")
+            await send_progress(client_id, 5, "Combining final video...")
+            final_video = os.path.join(temp_dir, "final-output.mp4")
 
-        def run_video_processing():
-            original_cwd = os.getcwd()
-            os.chdir(temp_dir)
-            try:
-                processor = VideoProcessor(video_path, voice_file, crowd_file)
-                processor.process(cleanup=True)
-                return processor.final_video
-            finally:
-                os.chdir(original_cwd)
+            def run_ffmpeg():
+                subprocess.run([
+                    "ffmpeg", "-y",
+                    "-i", video_path,
+                    "-i", os.path.abspath(SAMPLE_VOICE),
+                    "-i", os.path.abspath(SAMPLE_CROWD),
+                    "-filter_complex",
+                    "[1:a]volume=1.0[voice];[2:a]volume=0.3[crowd];[voice][crowd]amix=inputs=2:duration=shortest[mixed]",
+                    "-map", "0:v",
+                    "-map", "[mixed]",
+                    "-c:v", "copy",
+                    "-shortest",
+                    final_video,
+                ], check=True)
 
-        final_video_name = await asyncio.to_thread(run_video_processing)
-        final_video = os.path.join(temp_dir, final_video_name)
+            await asyncio.to_thread(run_ffmpeg)
+
+        else:
+            # ── PRODUCTION: real AI pipeline ──
+            # Step 1: Analyze video
+            await send_progress(client_id, 1, "Analyzing trickshot...")
+            print("Step 1: Analyzing video...")
+            summary = await asyncio.to_thread(getSummary, video_path)
+
+            # Step 2: Generate script
+            await send_progress(client_id, 2, "Generating commentary script...")
+            print("Step 2: Generating commentary script...")
+            script = await asyncio.to_thread(getScript, summary, language, trickshot_name, video_path)
+
+            # Step 3: Generate commentary audio
+            await send_progress(client_id, 3, "Generating voice over...")
+            print("Step 3: Generating commentary audio...")
+            voice_file = os.path.join(temp_dir, "trickshot-voice.mp3")
+            await asyncio.to_thread(generate_chris_mp3, script, out_path=voice_file)
+
+            # Step 4: Generate crowd noise
+            await send_progress(client_id, 4, "Generating crowd audio...")
+            print("Step 4: Generating crowd noise...")
+            crowd_prompt = (
+                "Background audio of a crowded basketball arena as heard through a TV broadcast. "
+                "Include cheering, clapping, chanting, and natural crowd reactions. "
+                "No narration or music."
+            )
+            crowd_file = os.path.join(temp_dir, "crowd-noises.mp3")
+            await asyncio.to_thread(
+                generate_crowd_sfx_mp3, crowd_prompt, crowd_file,
+                duration_seconds=20, loop=False
+            )
+
+            # Step 5: Process video with audio
+            await send_progress(client_id, 5, "Combining final video...")
+            print("Step 5: Processing video with audio...")
+
+            def run_video_processing():
+                original_cwd = os.getcwd()
+                os.chdir(temp_dir)
+                try:
+                    processor = VideoProcessor(video_path, voice_file, crowd_file)
+                    processor.process(cleanup=True)
+                    return processor.final_video
+                finally:
+                    os.chdir(original_cwd)
+
+            final_video_name = await asyncio.to_thread(run_video_processing)
+            final_video = os.path.join(temp_dir, final_video_name)
 
         print(f"Final video: {final_video}")
 
