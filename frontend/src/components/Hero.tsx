@@ -55,7 +55,12 @@ export default function Hero() {
 
         {/* CTA Button */}
         <div
-          className="group flex justify-center gap-[20px] relative px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 "
+          onClick={() =>
+            document
+              .getElementById("upload-section")
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
+          className="cursor-pointer group flex justify-center gap-[20px] relative px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-950 poppins-bold rounded-full overflow-hidden transition-all duration-300 "
           style={{ fontSize: "18px" }}
         >
           <span className="relative text-[30px] z-10 poppins-bold flex items-center justify-center gap-2">
